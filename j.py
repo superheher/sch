@@ -1,22 +1,15 @@
 #!/usr/bin/env python
-# pylint: disable=unused-argument, wrong-import-position
-# This program is dedicated to the public domain under the CC0 license.
-
-"""
-Simple Bot to reply to Telegram messages.
-First, a few handler functions are defined. Then, those functions are passed to
-the Application and registered at their respective places.
-Then, the bot is started and runs until we press Ctrl-C on the command line.
-Usage:
-Basic Echobot example, repeats messages.
-Press Ctrl-C on the command line or send a signal to the process to stop the
-bot.
+# pylint: disable=wrong-import-position
+"""Simple Bot to reply to Telegram messages.
+This is built on the API wrapper, see echobot.py to see the same example built
+on the telegram.ext bot framework.
+This program is dedicated to the public domain under the CC0 license.
 """
 
 import requests
 import sys
-import logging
 import asyncio
+import logging
 from typing import NoReturn
 
 from telegram import __version__ as TG_VER
@@ -28,7 +21,7 @@ URL=sys.argv[3];
 try:
     from telegram import __version_info__
 except ImportError:
-    __version_info__ = (0, 0, 0, 0, 0)  # type: ignore[assignment]
+    __version_info__ = (0, 0, 0, 0, 0)  # type: ignore[assignment]  # type: ignore[assignment]
 
 if __version_info__ < (20, 0, 0, "alpha", 1):
     raise RuntimeError(
@@ -36,10 +29,9 @@ if __version_info__ < (20, 0, 0, "alpha", 1):
         f"{TG_VER} version of this example, "
         f"visit https://docs.python-telegram-bot.org/en/v{TG_VER}/examples.html"
     )
-from telegram import ForceReply, Update
-from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
+from telegram import Bot
+from telegram.error import Forbidden, NetworkError
 
-# Enable logging
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
@@ -49,7 +41,7 @@ logger = logging.getLogger(__name__)
 async def main() -> NoReturn:
     """Run the bot."""
     # Here we use the `async with` syntax to properly initialize and shutdown resources.
-    async with Bot("TOKEN") as bot:
+    async with Bot(TOKEN) as bot:
         # get the first pending update_id, this is so we can skip over it in case
         # we get a "Forbidden" exception.
         try:
@@ -64,5 +56,25 @@ async def main() -> NoReturn:
         )
 
 
+async def echo(bot: Bot, update_id: int) -> int:
+    """Echo the message the user sent."""
+    # Request updates after the last update_id
+    updates = await bot.get_updates(offset=update_id, timeout=10)
+    for update in updates:
+        next_update_id = update.update_id + 1
+
+        # your bot can receive updates without messages
+        # and not all messages contain text
+        if update.message and update.message.text:
+            # Reply to the message
+            logger.info("Found message %s!", update.message.text)
+            await update.message.reply_text(update.message.text)
+        return next_update_id
+    return update_id
+
+
 if __name__ == "__main__":
-    main()
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:  # Ignore exception when Ctrl-C is pressed
+        pass
