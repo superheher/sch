@@ -16,6 +16,8 @@ bot.
 import requests
 import sys
 import logging
+import asyncio
+from typing import NoReturn
 
 from telegram import __version__ as TG_VER
 
