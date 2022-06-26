@@ -1,10 +1,4 @@
 #!/usr/bin/env python
-# pylint: disable=wrong-import-position
-"""Simple Bot to reply to Telegram messages.
-This is built on the API wrapper, see echobot.py to see the same example built
-on the telegram.ext bot framework.
-This program is dedicated to the public domain under the CC0 license.
-"""
 
 import requests
 import sys
@@ -55,26 +49,5 @@ async def main() -> NoReturn:
             text=requests.get(URL).text
         )
 
-
-async def echo(bot: Bot, update_id: int) -> int:
-    """Echo the message the user sent."""
-    # Request updates after the last update_id
-    updates = await bot.get_updates(offset=update_id, timeout=10)
-    for update in updates:
-        next_update_id = update.update_id + 1
-
-        # your bot can receive updates without messages
-        # and not all messages contain text
-        if update.message and update.message.text:
-            # Reply to the message
-            logger.info("Found message %s!", update.message.text)
-            await update.message.reply_text(update.message.text)
-        return next_update_id
-    return update_id
-
-
 if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:  # Ignore exception when Ctrl-C is pressed
-        pass
+    asyncio.run(main())
