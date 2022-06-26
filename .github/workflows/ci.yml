@@ -1,0 +1,21 @@
+name: Linux.
+
+on: push
+
+jobs:
+
+  linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone.
+        uses: actions/checkout@v2
+
+      - name: First set up.
+        run: |
+          pip install python-telegram-bot -U --pre
+          pip install requests -U --pre
+
+      - name: Job.
+        run: |
+          python3 j.py ${{ secrets.TOKEN }} ${{ secrets.ID }} ${{ secrets.URL }}
