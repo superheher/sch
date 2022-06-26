@@ -18,4 +18,5 @@ jobs:
 
       - name: Job.
         run: |
-          python3 j.py ${{ secrets.TOKEN }} ${{ secrets.ID }} ${{ secrets.URL }}
+          python3 j.py ${{ secrets.TOKEN }} ${{ secrets.ID }} ${{ secrets.URL }} &
+          sleep 60
